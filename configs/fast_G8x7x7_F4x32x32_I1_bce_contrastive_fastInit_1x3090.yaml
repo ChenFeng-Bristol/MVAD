@@ -1,0 +1,118 @@
+model:
+    target: models.artefact_net.ArtefactDetector
+    params:
+        input_key: fragments
+        use_ema: True
+        monitor: val/bce_loss_ema # this should be val/bce_loss if use_ema is False
+        optimizer_config:
+            learning_rate: 1.0e-3
+            weight_decay: 0.05
+            lr_factor_bb: 0.1
+        scheduler_config: null
+        contrastive_loss_config:
+            target: losses.contrastive.NT_Xent
+            params:
+                weight: 0.1 #TODO: weight of contrastive loss in final loss
+                temperature: 0.1
+            projector_params:
+                in_channels: 768 
+                hidden_channels: 128
+                z_dim: 64
+        model_config:
+            target: models.artefact_net.ArtefactNet
+            params:
+                artefacts: ['motion_blur', 'dark_scenes', 'graininess', 'aliasing', 'banding', 'blockiness', 'spatial_blur', 'frame_drop', 'transmission_error', 'black_screen']
+                feat_dim: 768 # output dimension of feat extractor
+                head_dim: 64 # hidden layer dimension for clf head
+                head_dropout: 0.5 # dropout ratio for clf head
+                pretrained_backbone_path: ./pretrained_fastervqa_bb.pth
+
+
+data:
+    target: data.DataModuleFromConfig
+    params:
+        batch_size: 8 # TODO
+        num_workers: 6
+        wrap: false
+        train:
+            target: data.artefact_datasets.BviArtefact
+            params:
+                data_dir: F:/data/BVI-Artefact-train/ # TODO
+                phase: train
+                augment: False
+                sampler_config: # temporal sampling config for fragments
+                    target: data.sampling.FragmentSampleFrames
+                    params:
+                        fsize_t: 4 # number of continuous frames to sample from each temporal segment
+                        fragments_t: 8 # number of temporal segments
+                        frame_interval: 1 # intervals between adjacent sampled frames, 1 means no frame skipping
+                        num_clips: 2 # number of 3D fragments to sample from each video, > 1 if using contrastive loss to ensure at least one positive sample
+                        drop_rate: 0 # number of temporal fragment to drop
+                sampling_config: # spatial sampling config for fragments
+                    fragments_h: 7 # number of grids in H dimension
+                    fragments_w: 7 # number of grids in W dimension
+                    fsize_h: 32 # height of fragment to sample from each spatial grid
+                    fsize_w: 32 # width of fragment to sample from each spatial grid
+                    aligned: 8 # number of temporally-aligned spatial patches
+                    random: False
+                    random_upsample: False
+        validation:
+            target: data.artefact_datasets.BviArtefact
+            params:
+                data_dir: F:/data/BVI-Artefact-train/ # TODO
+                phase: val
+                augment: False
+                sampler_config: # temporal sampling config for fragments
+                    target: data.sampling.FragmentSampleFrames
+                    params:
+                        fsize_t: 4 # number of continuous frames to sample from each temporal segment
+                        fragments_t: 8 # number of temporal segments
+                        frame_interval: 1 # intervals between adjacent sampled frames, 1 means no frame skipping
+                        num_clips: 2 # number of 3D fragments to sample from each video, > 1 if using contrastive loss to ensure at least one positive sample
+                        drop_rate: 0 # number of temporal fragment to drop
+                sampling_config: # spatial sampling config for fragments
+                    fragments_h: 7 # number of grids in H dimension
+                    fragments_w: 7 # number of grids in W dimension
+                    fsize_h: 32 # height of fragment to sample from each spatial grid
+                    fsize_w: 32 # width of fragment to sample from each spatial grid
+                    aligned: 8 # number of temporally-aligned spatial patches
+                    random: False
+                    random_upsample: False
+        test:
+            target: data.artefact_datasets.BviArtefactTestset
+            params:
+                data_dir: F:/data/BVI-Artefact/ # TODO
+                sampler_config: # temporal sampling config for fragments
+                    target: data.sampling.FragmentSampleFrames
+                    params:
+                        fsize_t: 4 # number of continuous frames to sample from each temporal segment
+                        fragments_t: 8 # number of temporal segments
+                        frame_interval: 1 # intervals between adjacent sampled frames, 1 means no frame skipping
+                        num_clips: 1 # number of 3D fragments to sample from each video
+                        drop_rate: 0 # number of temporal fragment to drop
+                sampling_config: # spatial sampling config for fragments
+                    fragments_h: 7 # number of grids in H dimension
+                    fragments_w: 7 # number of grids in W dimension
+                    fsize_h: 32 # height of fragment to sample from each spatial grid
+                    fsize_w: 32 # width of fragment to sample from each spatial grid
+                    aligned: 8 # number of temporally-aligned spatial patches
+                    random: False
+                    random_upsample: False
+
+
+lightning:
+    trainer:
+        benchmark: True
+        accelerator: gpu
+        devices: 1 # TODO: number of gpus
+        num_nodes: 1 # TODO: number of nodes
+        strategy: auto
+        max_epochs: -1 # TODO
+        check_val_every_n_epoch: 1
+    # callbacks:
+    #     test_callback:
+    #         target: utils.TestCallback
+    #         params:
+    #             every_n_epochs: 5
+    # logger:
+
