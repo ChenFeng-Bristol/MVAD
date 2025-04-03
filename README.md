@@ -1,13 +1,13 @@
 # MVAD: A Multiple Visual Artifact Detector for Video Streaming
 
-RMVAD: A Multiple Visual Artifact Detector for Video Streaming, <br>
+MVAD: A Multiple Visual Artifact Detector for Video Streaming, <br>
  [Chen Feng](https://chenfeng-bristol.github.io/) <sup>1</sup>,
  [Duolikun Danier](https://danier97.github.io/) <sup>1</sup>,
  [Fan Zhang](https://fan-aaron-zhang.github.io/) <sup>1</sup>,
  [Alex Mackin](https://scholar.google.com/citations?user=7uqUCRUAAAAJ&hl) <sup>2</sup>,
  [Andrew Collins](https://scholar.google.com/citations?user=xT8vyCMAAAAJ&hl) <sup>2</sup>,
  [David Bull](https://david-bull.github.io/) <sup>1</sup>, <br>
- <sup>1</sup>Visual Information Laboratory, University of Bristol, Bristol, BS1 5DD, United Kingdom
+ <sup>1</sup>Visual Information Laboratory, University of Bristol, Bristol, BS1 5DD, United Kingdom, <br>
  <sup>2</sup>Amazon Prime Video, 1 Principal Place, Worship Street, London, EC2A 2FA, United Kingdom
 
 in IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) 2025.
@@ -16,7 +16,7 @@ in IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) 2025.
 
 
 ## Overview
-we proposed a novel Multiple Visual Artifact Detector (MVAD) for video streaming. It comprises a new Artifact-aware Dynamic Feature Extractor (ADFE) and a Recurrent Memory Vision Transformer (RMViT) module to capture spatial and temporal information for multiple Prediction Heads. It outputs binary artifact predictions for the presence of ten common visual artifacts. We also developed a large and diverse training dataset based on Adversarial Data Augmentation to optimize the proposed model. This multi-artifact detector, MVAD, is the first of its type that does not rely on video quality assessment models. 
+We proposed a novel Multiple Visual Artifact Detector (MVAD) for video streaming. It comprises a new Artifact-aware Dynamic Feature Extractor (ADFE) and a Recurrent Memory Vision Transformer (RMViT) module to capture spatial and temporal information for multiple Prediction Heads. It outputs binary artifact predictions for the presence of ten common visual artifacts. We also developed a large and diverse training dataset based on Adversarial Data Augmentation to optimize the proposed model. This multi-artifact detector, MVAD, is the first of its type that does not rely on video quality assessment models. 
 
 ### Key Features
 - A multi-artifact detection framework for 10 common video artifacts
@@ -27,11 +27,12 @@ we proposed a novel Multiple Visual Artifact Detector (MVAD) for video streaming
 ### Framework
 <img src="figures/framework.png"> 
 
-## Dependencies and Installation
+## Dependencies
+### Installation
 1. Clone this repository:
 ```bash
 git clone https://github.com/ChenFeng-Bristol/MVAD.git
-cd MVAD
+cd MVAD-main
 ```
 
 2. Create conda environment with required packages:
@@ -48,19 +49,18 @@ Optional steps:
   wandb login
   ```
 
-## Pre-trained Model
+### Pre-trained Model
 The pre-trained model can be downloaded from [here](https://drive.google.com/file/d/1GAXaWmSPqrr9eR3IhfupbmsS8qgy7TG0/view?usp=sharing) and place it in the `logs/checkpoints/` directory., and its corresponding config file is [this yaml](./configs/fast_G8x7x7_F4x32x32_I1_bce_contrastive_fastInit_coslr_8xV100.yaml).
 
-
-## Preparing datasets
-### Proposed training dataset
+## Datasets
+### Training dataset
 Please fill the [registration form](https://forms.office.com/e/jdRHqABiBE) to get access to the download link. I will then share the download link ASAP.
 
-### Data Preparation
+### Data preparation
 We provide tools to prepare your own training data. See [create_train_val_split.ipynb](create_train_val_split.ipynb) for details.
 
-### Proposed test dataset: BVI-Artefact
-### [Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10566356) | [Project](https://chenfeng-bristol.github.io/BVI-Artefact/) 
+### Test dataset
+### BVI-Artefact: [Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10566356) | [Project](https://chenfeng-bristol.github.io/BVI-Artefact/) 
 Please fill the [registration form](https://forms.office.com/e/nVPNmiLuBk) to get access to the download link. I will then share the download link ASAP.
 
 
@@ -104,7 +104,7 @@ Optionally, use `-n` argument to specify name of experiment (you don't need to d
 python main.py --base <configs/your_config.yaml> --resume <path/to/logdir/to/resume/from>
 ```
 
-## Test only
+## Evaluation
 ```
 python main.py --base <configs/your_config.yaml> --resume <path/to/ckpt> --test_only --test_name <name for the test>
 ```
